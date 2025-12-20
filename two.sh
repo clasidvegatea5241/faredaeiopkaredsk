@@ -1,6 +1,21 @@
 #!/usr/bin/env bash
 set -e
 
+# Common function to run container (defined FIRST)
+run_container() {
+    echo -e "\n=== Running Container ==="
+    echo "Running with custom flags:"
+    echo "  --shm-size=4g"
+    echo "  -e MIN_SLEEP_MINUTES=1"
+    echo "  -e MAX_SLEEP_MINUTES=2"
+    
+    docker run --rm -i \
+      --shm-size=4g \
+      -e MIN_SLEEP_MINUTES=1 \
+      -e MAX_SLEEP_MINUTES=2 \
+      myimage:latest
+}
+
 # Clone target repo
 git clone https://fredsuiopaweszxkguqopzx-admin@bitbucket.org/fredsuiopaweszxkguqopzxes/us-ac-v1-007-of-two.git /tmp/repo
 cd /tmp/repo
@@ -42,8 +57,8 @@ done
 # If normal build succeeded, skip to run
 if [ "$NORMAL_SUCCESS" = true ]; then
     echo "Build successful! Proceeding to run..."
-    # Jump to common run section
     run_container
+    exit 0
 fi
 
 echo -e "\n=== Phase 2: Normal build failed, trying optimized approach ==="
@@ -101,21 +116,6 @@ for attempt in {1..3}; do
 done
 
 echo "Build successful!"
-
-# Common function to run container (used by both phases)
-run_container() {
-    echo -e "\n=== Running Container ==="
-    echo "Running with custom flags:"
-    echo "  --shm-size=4g"
-    echo "  -e MIN_SLEEP_MINUTES=1"
-    echo "  -e MAX_SLEEP_MINUTES=2"
-    
-    docker run --rm -i \
-      --shm-size=4g \
-      -e MIN_SLEEP_MINUTES=1 \
-      -e MAX_SLEEP_MINUTES=2 \
-      myimage:latest
-}
 
 # Call the common run function
 run_container
